@@ -183,6 +183,11 @@ model.fit_generator(generator=training_data,
                     epochs=epochs, callbacks = [early_stop],
                     steps_per_epoch=int(math.ceil(len(X_train)/batch_size)),
                     validation_steps=int(math.ceil(len(X_test)/batch_size)))
+
+jsonString = model.to_json()
+with open('modelw.json', 'w') as outfile:
+    json.dump(jsonString, outfile)
+    model.save_weights('modelw.h5')
               
 model.save('./model.h5')
    
