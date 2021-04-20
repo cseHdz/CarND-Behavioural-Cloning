@@ -113,9 +113,9 @@ Given the amount of data, a batch generator was implemented to avoid loading all
 #### Details on training and testing data
 After the collection process, I had 12,568 number of data points (incl. data from Udacity). I then preprocessed this data as follows:
 
-1. Cropping the image: Since the top portion includes the horizon (70px) and the bottom is the nose of the vehicle (20px), those were removed. 
+1. Cropping the image: Since the top portion includes the horizon (70px) and the bottom is the nose of the vehicle (20px), those were removed. (Line 50)
 ![alt text][image5]
-2. Adjusting the color space to YUV: The rationale was to follow the suggestion set out by the NVIDIA paper.
+2. Adjusting the color space to YUV: The rationale was to follow the suggestion set out by the NVIDIA paper. (Line 51)
 
 ![alt text][image1]
 
