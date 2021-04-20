@@ -39,7 +39,8 @@ def load_images(file_path, file):
         next(reader) # Skip header
         for row in reader:
             
-            X.append([file_path + '/' + r.strip() for r in row[0:3]])
+            img_path = lambda x: file_path + '/' + x.strip() if file_path not in x else x.strip()
+            X.append([img_path(r) for r in row[0:3]])
             y.append(row[3])
     
     return X, y
@@ -213,7 +214,18 @@ def custom_model():
 # Behavioural Clonning Model
 ###################################
 
-X, y = load_images('/opt/carnd_p3/data', 'driving_log.csv')
+
+X = []
+y = []
+
+folders = ['/opt/carnd_p3/data', '/opt/data', '/opt/data2']
+
+for folder in folders:
+    
+    images = load_images(folder, 'driving_log.csv')
+    X.extend(images[0])
+    y.extend(images[1])    
+    
 X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Building the Model
@@ -224,11 +236,11 @@ model.compile(optimizer='adam', loss='mse', metrics=['mean_squared_error'])
 print(model.summary())
 
 # Training & Saving
-epochs = 20
+epochs = 50
 batch_size = 32
 
 early_stop= EarlyStopping(monitor='val_mean_squared_error', min_delta=0.0001, 
-                          patience=3, verbose=1, mode='min')
+                          patience=5, verbose=1, mode='min')
 
 training_data = BatchGenerator(X_train, y_train, batch_size=batch_size, shuffle=True) 
 validation_data = BatchGenerator(X_test, y_test, batch_size=batch_size, shuffle=True) 
