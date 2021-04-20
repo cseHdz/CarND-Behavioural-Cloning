@@ -101,10 +101,12 @@ I leveraged an early stop callback in Keras to ensure training stopped if the ne
 Training data was chosen to keep the vehicle driving on the road. To better generalize the model, the following augmentation procedures were followed:
 
 1. Center Driving: Randomly flip the image and respective angle (p-0.5).
+
 ![alt text][image6]
 ![alt text][image2]
 
 2. Left/Right Recovery: The images from the two side cameras were only considered if they were associated with a minimal angle of 0.15 degrees. Then they were flipped randomly (p=0.5). In terms of the angle, both images were corrected with a constant of 0.24 (substract from right, add to left).
+
 ![alt text][image3]
 ![alt text][image4]
 
@@ -114,7 +116,9 @@ Given the amount of data, a batch generator was implemented to avoid loading all
 After the collection process, I had 12,568 number of data points (incl. data from Udacity). I then preprocessed this data as follows:
 
 1. Cropping the image: Since the top portion includes the horizon (70px) and the bottom is the nose of the vehicle (20px), those were removed. (Line 50)
+
 ![alt text][image5]
+
 2. Adjusting the color space to YUV: The rationale was to follow the suggestion set out by the NVIDIA paper. (Line 51)
 
 ![alt text][image1]
