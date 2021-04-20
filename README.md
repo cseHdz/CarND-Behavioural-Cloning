@@ -62,7 +62,7 @@ The final model used for this project was the one based on LeNet5. The model per
 The structure can be found below:
 
 |Layer (type)           |     Output Shape            |   Param #    |
-|:---------------------:|:------------------------------------------:| 
+|---------------------|:------------------------------|-----------:| 
 | lambda_1 (Lambda)            |(None, 70, 320, 3)    |    0         |
 | conv2d_1 (Conv2D)            |(None, 66, 316, 6)    |    456       |
 | max_pooling2d_1 (MaxPooling2 |(None, 33, 158, 6)    |    0         |
