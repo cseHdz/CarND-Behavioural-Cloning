@@ -51,6 +51,27 @@ def preprocess_image(image):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
     return img
 
+def prepare_images_for_write_up(X):
+    
+    image = np.asarray(Image.open(X[0]))
+    
+    original = Image.fromarray(image)
+    original.save('./output/normal.png')
+    
+    cropped = Image.fromarray(image[70:140,:])
+    original.save('./output/Cropped.png')
+                  
+    yuv = cv2.cvtColor(image, cv2.COLOR_BGR2YUV)
+    original.save('./output/BGR2YUV.png')
+    
+    flipped = cv2.flip(image,1)
+    original.save('./output/flipped_Center.png')
+    
+    recovery_left = Image.open(X[1])
+    original.save('./output/left_recovery.png')
+                  
+    recovery_left = Image.open(X[2])
+    original.save('./output/right_recovery.png')
 
 #######################
 # Generate Batches
@@ -226,6 +247,8 @@ for folder in folders:
     y.extend(images[1])    
     
 print("Num. examples: {0}".format(len(X)))
+
+# prepare_images_for_write_up(X[0])
     
 X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=0.2, random_state=42)
 
