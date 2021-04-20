@@ -73,9 +73,9 @@ def telemetry(sid, data):
         
         throttle = 0.2 # Avoid random acceleration
         
-        if speed>15.0 and abs(steering_angle)>0.1:
+        if float(speed) > 15.0 and abs(steering_angle)>0.1:
             throttle= 0.0
-        elif speed<10.0: # Accelerate if speed is low
+        elif float(speed) < 10.0: # Accelerate if speed is low
             throttle= 1.0
 
         print(steering_angle, throttle)

@@ -59,19 +59,19 @@ def prepare_images_for_write_up(X):
     original.save('./output/normal.png')
     
     cropped = Image.fromarray(image[70:140,:])
-    original.save('./output/Cropped.png')
+    cropped.save('./output/Cropped.png')
                   
-    yuv = cv2.cvtColor(image, cv2.COLOR_BGR2YUV)
-    original.save('./output/BGR2YUV.png')
+    yuv = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2YUV))
+    yuv.save('./output/BGR2YUV.png')
     
-    flipped = cv2.flip(image,1)
-    original.save('./output/flipped_Center.png')
+    flipped = Image.fromarray(cv2.flip(image,1))
+    flipped.save('./output/flipped_Center.png')
     
     recovery_left = Image.open(X[1])
-    original.save('./output/left_recovery.png')
+    recovery_left.save('./output/left_recovery.png')
                   
-    recovery_left = Image.open(X[2])
-    original.save('./output/right_recovery.png')
+    recovery_right = Image.open(X[2])
+    recovery_right.save('./output/right_recovery.png')
 
 #######################
 # Generate Batches
@@ -248,37 +248,37 @@ for folder in folders:
     
 print("Num. examples: {0}".format(len(X)))
 
-# prepare_images_for_write_up(X[0])
+prepare_images_for_write_up(X[0])
     
-X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=0.2, random_state=42)
+# X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Building the Model
-model = LeNet5_CarNd()
-# model = model2()
+# # Building the Model
+# model = LeNet5_CarNd()
+# # model = model2()
 
-model.compile(optimizer='adam', loss='mse', metrics=['mean_squared_error'])
-print(model.summary())
+# model.compile(optimizer='adam', loss='mse', metrics=['mean_squared_error'])
+# print(model.summary())
 
-# Training & Saving
-epochs = 50
-batch_size = 32
+# # Training & Saving
+# epochs = 50
+# batch_size = 32
 
-early_stop= EarlyStopping(monitor='val_mean_squared_error', min_delta=0.0001, 
-                          patience=5, verbose=1, mode='min')
+# early_stop= EarlyStopping(monitor='val_mean_squared_error', min_delta=0.0001, 
+#                           patience=5, verbose=1, mode='min')
 
-training_data = BatchGenerator(X_train, y_train, batch_size=batch_size, shuffle=True) 
-validation_data = BatchGenerator(X_test, y_test, batch_size=batch_size, shuffle=True) 
+# training_data = BatchGenerator(X_train, y_train, batch_size=batch_size, shuffle=True) 
+# validation_data = BatchGenerator(X_test, y_test, batch_size=batch_size, shuffle=True) 
 
-model.fit_generator(generator=training_data,
-                    validation_data=validation_data,
-                    epochs=epochs, callbacks = [early_stop],
-                    steps_per_epoch=int(math.ceil(len(X_train)/batch_size)),
-                    validation_steps=int(math.ceil(len(X_test)/batch_size)))
+# model.fit_generator(generator=training_data,
+#                     validation_data=validation_data,
+#                     epochs=epochs, callbacks = [early_stop],
+#                     steps_per_epoch=int(math.ceil(len(X_train)/batch_size)),
+#                     validation_steps=int(math.ceil(len(X_test)/batch_size)))
 
-jsonString = model.to_json()
-with open('modelw.json', 'w') as outfile:
-    json.dump(jsonString, outfile)
-    model.save_weights('modelw.h5')
+# jsonString = model.to_json()
+# with open('modelw.json', 'w') as outfile:
+#     json.dump(jsonString, outfile)
+#     model.save_weights('modelw.h5')
               
-model.save('./model.h5')
+# model.save('./model.h5')
    
