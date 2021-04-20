@@ -250,35 +250,35 @@ print("Num. examples: {0}".format(len(X)))
 
 prepare_images_for_write_up(X[0])
     
-# X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# # Building the Model
-# model = LeNet5_CarNd()
-# # model = model2()
+# Building the Model
+model = LeNet5_CarNd()
+# model = model2()
 
-# model.compile(optimizer='adam', loss='mse', metrics=['mean_squared_error'])
-# print(model.summary())
+model.compile(optimizer='adam', loss='mse', metrics=['mean_squared_error'])
+print(model.summary())
 
-# # Training & Saving
-# epochs = 50
-# batch_size = 32
+# Training & Saving
+epochs = 50
+batch_size = 32
 
-# early_stop= EarlyStopping(monitor='val_mean_squared_error', min_delta=0.0001, 
-#                           patience=5, verbose=1, mode='min')
+early_stop= EarlyStopping(monitor='val_mean_squared_error', min_delta=0.0001, 
+                          patience=5, verbose=1, mode='min')
 
-# training_data = BatchGenerator(X_train, y_train, batch_size=batch_size, shuffle=True) 
-# validation_data = BatchGenerator(X_test, y_test, batch_size=batch_size, shuffle=True) 
+training_data = BatchGenerator(X_train, y_train, batch_size=batch_size, shuffle=True) 
+validation_data = BatchGenerator(X_test, y_test, batch_size=batch_size, shuffle=True) 
 
-# model.fit_generator(generator=training_data,
-#                     validation_data=validation_data,
-#                     epochs=epochs, callbacks = [early_stop],
-#                     steps_per_epoch=int(math.ceil(len(X_train)/batch_size)),
-#                     validation_steps=int(math.ceil(len(X_test)/batch_size)))
+model.fit_generator(generator=training_data,
+                    validation_data=validation_data,
+                    epochs=epochs, callbacks = [early_stop],
+                    steps_per_epoch=int(math.ceil(len(X_train)/batch_size)),
+                    validation_steps=int(math.ceil(len(X_test)/batch_size)))
 
-# jsonString = model.to_json()
-# with open('modelw.json', 'w') as outfile:
-#     json.dump(jsonString, outfile)
-#     model.save_weights('modelw.h5')
+jsonString = model.to_json()
+with open('modelw.json', 'w') as outfile:
+    json.dump(jsonString, outfile)
+    model.save_weights('modelw.h5')
               
-# model.save('./model.h5')
+model.save('./model.h5')
    
