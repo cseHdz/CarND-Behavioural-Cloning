@@ -50,7 +50,6 @@ def preprocess_image(image):
     img = image[70:140,:]
     img = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
     return img
-#     return misc.imresize(img, (18,80,3))
 
 
 #######################
@@ -218,13 +217,15 @@ def custom_model():
 X = []
 y = []
 
-folders = ['/opt/carnd_p3/data', '/opt/data', '/opt/data2']
+folders = ['/opt/carnd_p3/data', '/opt/data', '/opt/data2', '/opt/data3']
 
 for folder in folders:
     
     images = load_images(folder, 'driving_log.csv')
     X.extend(images[0])
     y.extend(images[1])    
+    
+print("Num. examples: {0}".format(len(X)))
     
 X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=0.2, random_state=42)
 

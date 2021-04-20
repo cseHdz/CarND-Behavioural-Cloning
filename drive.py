@@ -26,7 +26,7 @@ def preprocess_image(image):
     import cv2
     
     img = image[70:140,:]
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
     return img
 
 
@@ -70,8 +70,13 @@ def telemetry(sid, data):
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = preprocess_image(np.asarray(image))
         steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
-
-        throttle = controller.update(float(speed))
+        
+        throttle = 0.2 # Avoid random acceleration
+        
+        if speed>15.0 and abs(steering_angle)>0.1:
+            throttle= 0.0
+        elif speed<10.0: # Accelerate if speed is low
+            throttle= 1.0
 
         print(steering_angle, throttle)
         send_control(steering_angle, throttle)
