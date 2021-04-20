@@ -4,6 +4,7 @@ import json
 import csv
 from pathlib import Path
 
+import math
 import numpy as np
 
 # Image Modification
@@ -16,9 +17,8 @@ from keras.callbacks import EarlyStopping
 
 from keras.models import Sequential, Model
 from keras.layers.convolutional import Conv2D
-from keras.layers.core import Dense, Flatten, Lambda
-# from keras.layers.pooling import AveragePooling2D, MaxPooling2D
-# from keras.layers import Cropping2D
+from keras.layers.pooling import MaxPooling2D
+from keras.layers.core import Dense, Flatten, Lambda, Dropout
 
 # import keras.backend as K
 from keras.utils import Sequence
@@ -31,21 +31,25 @@ from sklearn.model_selection import train_test_split
 
 # Load Images
 def load_images(file_path, file):
-
-    with open(Path(file_path) / file, 'r') as f:
+    X = []
+    y = []
+    with open(file_path + '/' + file, 'r') as f:
         reader = csv.reader(f)
         
         next(reader) # Skip header
-        X = [row[0:2] for row in reader]
-        y = [row[3] for row in reader]
+        for row in reader:
+            
+            X.append([file_path + '/' + r.strip() for r in row[0:3]])
+            y.append(row[3])
     
     return X, y
 
 def preprocess_image(image):
     
     img = image[70:140,:]
-    img = (cv2.cvtColor(img, cv2.COLOR_BGR2YUV))[:,:,1]
-    return misc.imresize(img, (18,80,1))
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
+    return img
+#     return misc.imresize(img, (18,80,3))
 
 
 #######################
@@ -77,10 +81,12 @@ class BatchGenerator(Sequence):
         X = []
         y = []
         
+        correction = 0.24
+        
         def augment(img_path, angle):
             
             # Preprocess the image
-            image = np.asarray(preprocess_image(Image.open(img_path)))
+            image = preprocess_image(np.asarray(Image.open(img_path)))
             
             # Flip images randomly
             if np.random.choice(2) == 1:       
@@ -103,7 +109,7 @@ class BatchGenerator(Sequence):
                 augment(X_batch[i][2], angle - correction)
                             
         X_train = np.array(X)
-        X_train= np.reshape(X_train, (-1, 18,80,1))
+        X_train= np.reshape(X_train, (-1, *X_train[0].shape))
         
         y_train = np.array(y)
         
@@ -131,7 +137,7 @@ def build_NVIDA_model():
     
     model = Sequential()
     
-    model.add(Lambda(lambda x: x /255.0 - 1.0, input_shape=(160,320,3)))
+    model.add(Lambda(lambda x: x /255.0 - 1.0, input_shape=(70,320,3)))
      
     # 2-Stride Convolutional Layers
     model.add(Conv2D(filters=24, kernel_size=(5,5), strides=(2,2), activation='relu'))
@@ -148,32 +154,81 @@ def build_NVIDA_model():
     model.add(Dense(units=100, activation='relu'))
     model.add(Dense(units=50, activation='relu'))
     model.add(Dense(units=10, activation='relu'))
-    model.add(Dense(units=1, activation='relu'))
+    model.add(Dense(units=1))
     
-    model.compile(optimizer='adam', loss = 'mse', metrics=['mean_squared_error'])
+    return model   
+
+def LeNet5_CarNd():
+    # LeNet -5
+    model = Sequential()
     
-    return model              
+    # Normalization
+    model.add(Lambda(lambda x: x/255.0 - 0.5, input_shape=(70,320,3)))
+
+    model.add(Conv2D(filters=6, kernel_size=(5, 5), activation='relu'))
+
+    model.add(MaxPooling2D())
+
+    model.add(Conv2D(filters=16, kernel_size=(5, 5), activation='relu'))
+
+    model.add(MaxPooling2D())
+
+    model.add(Flatten())
+
+    model.add(Dropout(0.3))
+
+    model.add(Dense(units=120, activation='relu'))
+
+    model.add(Dense(units=84, activation='relu'))
+    
+    model.add(Dropout(0.5))
+
+    model.add(Dense(units=1))
+    
+    return model
+
+def custom_model():
+    
+    model= Sequential()
+    
+    # Normalization
+    model.add(Lambda(lambda x: x/255.0 - 0.5, input_shape=(70,320,3)))
+    
+    # Convolutional Layer
+    model.add(Conv2D(6, kernel_size=(5,5), border_mode='same',activation='relu'))
+    
+    model.add(MaxPooling2D())
+    
+    model.add(Conv2D(filters=16, kernel_size=(5, 5), activation='relu'))
+    
+    model.add(Flatten())
+    model.add(Dropout(0.3))
+        
+    model.add(Dense(1))
+    
+    return model
 
 
 ###################################
-#
+# Behavioural Clonning Model
 ###################################
 
-X, y = load_images('/opt/cardnd_p3/data', 'driving_log.csv')
-              
-# Split data between training and testing
+X, y = load_images('/opt/carnd_p3/data', 'driving_log.csv')
 X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Building the Model
-model = build_NVIDA_model()
+model = LeNet5_CarNd()
+# model = model2()
+
+model.compile(optimizer='adam', loss='mse', metrics=['mean_squared_error'])
 print(model.summary())
 
 # Training & Saving
-epochs = 100
+epochs = 20
 batch_size = 32
 
 early_stop= EarlyStopping(monitor='val_mean_squared_error', min_delta=0.0001, 
-                          patience=50, verbose=1, mode='min')
+                          patience=3, verbose=1, mode='min')
 
 training_data = BatchGenerator(X_train, y_train, batch_size=batch_size, shuffle=True) 
 validation_data = BatchGenerator(X_test, y_test, batch_size=batch_size, shuffle=True) 
